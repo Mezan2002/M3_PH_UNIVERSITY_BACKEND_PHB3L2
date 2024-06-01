@@ -5,8 +5,16 @@ import {
   Months,
 } from './academicSemester.constant';
 
-// Define the Zod schema
 const createAcademicSemesterValidationSchema = z.object({
+  body: z.object({
+    name: z.enum([...AcademicSemesterName] as [string, ...string[]]),
+    code: z.enum([...AcademicSemesterCode] as [string, ...string[]]),
+    year: z.string(),
+    startMonth: z.enum([...Months] as [string, ...string[]]),
+    endMonth: z.enum([...Months] as [string, ...string[]]),
+  }),
+});
+const updateAcademicSemesterValidationSchema = z.object({
   body: z.object({
     name: z.enum([...AcademicSemesterName] as [string, ...string[]]),
     code: z.enum([...AcademicSemesterCode] as [string, ...string[]]),
@@ -18,4 +26,5 @@ const createAcademicSemesterValidationSchema = z.object({
 
 export const AcademicSemesterValidations = {
   createAcademicSemesterValidationSchema,
+  updateAcademicSemesterValidationSchema,
 };
