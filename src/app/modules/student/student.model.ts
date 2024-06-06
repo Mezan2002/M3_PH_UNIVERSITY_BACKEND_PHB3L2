@@ -1,4 +1,7 @@
+import httpStatus from 'http-status';
 import { Schema, model } from 'mongoose';
+import AppError from '../../errors/AppError';
+import { User } from '../user/user.model';
 import {
   StudentModel,
   TGuardian,
@@ -174,6 +177,15 @@ studentSchema.pre('findOne', function (next) {
 
 studentSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
+
+studentSchema.pre('findOneAndUpdate', async function (next) {
+  const userId = this.getQuery();
+  const user = await User.findOne(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid user id, user not found');
+  }
   next();
 });
 
