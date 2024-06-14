@@ -11,6 +11,7 @@ import { User } from './user.model';
 import { generateStudentId } from './user.utils';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
+  console.log('🚀 ~ createStudentIntoDB ~ payload:', payload);
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -22,7 +23,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
   // find academic semester
   const academicSemester = await AcademicSemester.findById(
-    payload.academicSemester,
+    payload.admissionSemester,
   );
 
   const session = await mongoose.startSession();
@@ -46,6 +47,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     payload.user = newUser[0]._id; //reference _id
 
     const newStudent = await Student.create([payload], { session });
+    console.log('🚀 ~ createStudentIntoDB ~ newStudent:', newStudent);
 
     if (!newStudent.length) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
@@ -58,6 +60,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
+    throw new Error('Failed to create student!');
   }
 };
 
