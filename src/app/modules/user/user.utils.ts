@@ -20,6 +20,22 @@ const findLastStudentId = async () => {
   //203001   0001
   return lastStudent?.id ? lastStudent.id : undefined;
 };
+const findLastFacultyId = async () => {
+  const lastFaculty = await User.findOne(
+    {
+      role: 'faculty',
+    },
+    {
+      id: 1,
+      _id: 0,
+    },
+  )
+    .sort({
+      createdAt: -1,
+    })
+    .lean();
+  return lastFaculty?.id ? lastFaculty.id : undefined;
+};
 
 export const generateStudentId = async (payload: TAcademicSemester) => {
   // first time 0000
@@ -43,6 +59,20 @@ export const generateStudentId = async (payload: TAcademicSemester) => {
   let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
 
   incrementId = `${payload.year}${payload.code}${incrementId}`;
+
+  return incrementId;
+};
+
+export const generateFacultyId = async () => {
+  let currentFacultyId = (0).toString();
+  const lastFacultyId = await findLastFacultyId();
+  if (lastFacultyId) {
+    currentFacultyId = lastFacultyId.substring(2);
+  }
+
+  let incrementId = (Number(currentFacultyId) + 1).toString().padStart(4, '0');
+
+  incrementId = `F-${incrementId}`;
 
   return incrementId;
 };
