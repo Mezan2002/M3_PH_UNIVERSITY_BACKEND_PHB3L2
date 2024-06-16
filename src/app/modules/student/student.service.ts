@@ -1,75 +1,32 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
 import { User } from '../user/user.model';
+import { studentSearchableFields } from './student.constant';
 import { TStudent } from './student.interface';
 import { Student } from './student.model';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  let searchTerm = '';
-  const copyQueryObject = { ...query };
-  const studentSearchableFields = ['email', 'name.firstName', 'presentAddress'];
-  const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
-  excludeFields.forEach((field) => delete copyQueryObject[field]);
+  const studentQuery = new QueryBuilder(
+    Student.find()
+      .populate('admissionSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
+    query,
+  )
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
 
-  if (query?.searchTerm) {
-    searchTerm = query.searchTerm as string;
-  }
-
-  // searching here
-  const searchQuery = Student.find({
-    $or: studentSearchableFields.map((field) => ({
-      [field]: {
-        $regex: searchTerm,
-        $options: 'i',
-      },
-    })),
-  });
-
-  // filtering here
-  const filterQuery = searchQuery
-    .find(copyQueryObject)
-    .populate('admissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty',
-      },
-    });
-
-  // sorting here
-  let sort: string = '-createdAt';
-  if (query.sort) {
-    sort = query?.sort as string;
-  }
-  const sortQuery = filterQuery.sort(sort);
-
-  // limit and pagitaion here
-  let page = 1;
-  let skip = 1;
-
-  let limit = 10;
-  if (query.limit) {
-    limit = Number(query.limit);
-  }
-
-  if (query.page) {
-    page = Number(query.page);
-    skip = (page - 1) * limit;
-  }
-
-  const paginateQuery = sortQuery.skip(skip);
-  const limitQuery = paginateQuery.limit(limit);
-
-  // fields limiting
-  let fields = '-__v';
-
-  if (query.fields) {
-    fields = (query.fields as string).split(',').join(' ');
-  }
-  const fieldLimitationQuery = await limitQuery.select(fields);
-
-  return fieldLimitationQuery;
+  const result = await studentQuery.QueryModel;
+  return result;
 };
 
 const getSingleStudentFromDB = async (id: string) => {
