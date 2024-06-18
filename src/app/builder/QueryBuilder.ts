@@ -3,6 +3,7 @@ import { FilterQuery, Query } from 'mongoose';
 class QueryBuilder<T> {
   public QueryModel: Query<T[], T>;
   public query: Record<string, unknown>;
+  modelQuery: any;
 
   constructor(QueryModel: Query<T[], T>, query: Record<string, unknown>) {
     this.QueryModel = QueryModel;

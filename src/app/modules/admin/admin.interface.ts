@@ -1,10 +1,4 @@
-import { Types } from 'mongoose';
-
-export type TFacultyName = {
-  firstName: string;
-  middleName: string;
-  lastName: string;
-};
+import { Model, Types } from 'mongoose';
 
 export type TGender = 'male' | 'female' | 'other';
 export type TBloodGroup =
@@ -17,22 +11,30 @@ export type TBloodGroup =
   | 'O+'
   | 'O-';
 
-export type TFaculty = {
+export type TUserName = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+};
+
+export type TAdmin = {
   id: string;
   user: Types.ObjectId;
-  role: string;
   designation: string;
-  name: TFacultyName;
+  name: TUserName;
   gender: TGender;
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
-  bloodGroup?: TBloodGroup;
+  bloogGroup?: TBloodGroup;
   presentAddress: string;
   permanentAddress: string;
   profileImg?: string;
-  academicDepartment: Types.ObjectId;
-  academicFaculty: Types.ObjectId;
   isDeleted: boolean;
 };
+
+export interface AdminModel extends Model<TAdmin> {
+  // eslint-disable-next-line no-unused-vars
+  isUserExists(id: string): Promise<TAdmin | null>;
+}

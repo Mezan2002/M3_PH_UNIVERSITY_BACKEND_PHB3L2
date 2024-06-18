@@ -14,7 +14,7 @@ router.post(
 
 router.post(
   '/create-faculty',
-  validateRequest(FacultyValidations.creatFacultyValidationSchema),
+  validateRequest(FacultyValidations.createFacultyValidationSchema),
   UserControllers.createFaculty,
 );
 
